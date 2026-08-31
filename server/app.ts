@@ -57,8 +57,13 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Vercel Serverless Route Normalization middleware
 app.use((req: Request, _res: Response, next: NextFunction) => {
-  if (req.url && !req.url.startsWith('/api') && !req.url.startsWith('/uploads')) {
-    req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
+  const forwardedUri = req.headers['x-forwarded-uri'] as string | undefined;
+  const matchedPath = req.headers['x-matched-path'] as string | undefined;
+
+  if (forwardedUri) {
+    req.url = forwardedUri.split('?')[0];
+  } else if (matchedPath) {
+    req.url = matchedPath.split('?')[0];
   }
   next();
 });
@@ -109,12 +114,12 @@ export function authenticateAdmin(req: AuthenticatedRequest, res: Response, next
 // ================= API ROUTES =================
 
 // Health check
-app.get('/api/health', (_req: Request, res: Response) => {
+app.get(['/api/health', '/health'], (_req: Request, res: Response) => {
   res.json({ success: true, status: 'healthy', timestamp: new Date().toISOString() });
 });
 
 // 1. Auth Routes
-app.post('/api/auth/login', async (req: Request, res: Response) => {
+app.post(['/api/auth/login', '/auth/login'], async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body || {};
 
@@ -153,7 +158,7 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
   }
 });
 
-app.get('/api/auth/me', authenticateAdmin, (req: AuthenticatedRequest, res: Response) => {
+app.get(['/api/auth/me', '/auth/me'], authenticateAdmin, (req: AuthenticatedRequest, res: Response) => {
   res.json({
     success: true,
     data: {
@@ -162,7 +167,7 @@ app.get('/api/auth/me', authenticateAdmin, (req: AuthenticatedRequest, res: Resp
   });
 });
 
-app.post('/api/auth/change-password', authenticateAdmin, async (req: Request, res: Response) => {
+app.post(['/api/auth/change-password', '/auth/change-password'], authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) {
@@ -188,11 +193,11 @@ app.post('/api/auth/change-password', authenticateAdmin, async (req: Request, re
 });
 
 // 2. Public Video Routes
-app.get('/api/videos', async (req: Request, res: Response) => {
+app.get(['/api/videos', '/videos'], async (req: Request, res: Response) => {
   try {
     const { category, featured } = req.query;
     const allVideos = await getVideos();
-    let videos = allVideos.filter((v) => v.isPublished);
+    let videos = allVideos.filter((v) => v && v.isPublished);
 
     if (category && category !== 'ALL') {
       videos = videos.filter((v) => v.category === (category as VideoCategory));
@@ -209,7 +214,7 @@ app.get('/api/videos', async (req: Request, res: Response) => {
   }
 });
 
-app.get('/api/videos/:id', async (req: Request, res: Response) => {
+app.get(['/api/videos/:id', '/videos/:id'], async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const videos = await getVideos();
@@ -232,7 +237,7 @@ app.get('/api/videos/:id', async (req: Request, res: Response) => {
 });
 
 // 3. Admin Video Routes
-app.get('/api/admin/videos', authenticateAdmin, async (_req: Request, res: Response) => {
+app.get(['/api/admin/videos', '/admin/videos'], authenticateAdmin, async (_req: Request, res: Response) => {
   try {
     const videos = await getVideos();
     res.json({ success: true, data: videos });
@@ -241,7 +246,7 @@ app.get('/api/admin/videos', authenticateAdmin, async (_req: Request, res: Respo
   }
 });
 
-app.post('/api/admin/videos', authenticateAdmin, async (req: Request, res: Response) => {
+app.post(['/api/admin/videos', '/admin/videos'], authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const { title, category, description, videoUrl, thumbnailUrl, isFeatured, isPublished, isPermanent, client, duration } = req.body;
 
@@ -269,7 +274,7 @@ app.post('/api/admin/videos', authenticateAdmin, async (req: Request, res: Respo
   }
 });
 
-app.put('/api/admin/videos/:id', authenticateAdmin, async (req: Request, res: Response) => {
+app.put(['/api/admin/videos/:id', '/admin/videos/:id'], authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { title, category, description, videoUrl, thumbnailUrl, isFeatured, isPublished, isPermanent, client, duration } = req.body;
@@ -298,7 +303,7 @@ app.put('/api/admin/videos/:id', authenticateAdmin, async (req: Request, res: Re
   }
 });
 
-app.delete('/api/admin/videos/:id', authenticateAdmin, async (req: Request, res: Response) => {
+app.delete(['/api/admin/videos/:id', '/admin/videos/:id'], authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const success = await deleteVideo(id);
@@ -314,7 +319,7 @@ app.delete('/api/admin/videos/:id', authenticateAdmin, async (req: Request, res:
   }
 });
 
-app.patch('/api/admin/videos/:id/toggle-visibility', authenticateAdmin, async (req: Request, res: Response) => {
+app.patch(['/api/admin/videos/:id/toggle-visibility', '/admin/videos/:id/toggle-visibility'], authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const updated = await toggleVideoVisibility(id);
@@ -330,7 +335,7 @@ app.patch('/api/admin/videos/:id/toggle-visibility', authenticateAdmin, async (r
   }
 });
 
-app.patch('/api/admin/videos/:id/toggle-featured', authenticateAdmin, async (req: Request, res: Response) => {
+app.patch(['/api/admin/videos/:id/toggle-featured', '/admin/videos/:id/toggle-featured'], authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const updated = await toggleVideoFeatured(id);
@@ -346,7 +351,7 @@ app.patch('/api/admin/videos/:id/toggle-featured', authenticateAdmin, async (req
   }
 });
 
-app.patch('/api/admin/videos/:id/toggle-permanent', authenticateAdmin, async (req: Request, res: Response) => {
+app.patch(['/api/admin/videos/:id/toggle-permanent', '/admin/videos/:id/toggle-permanent'], authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const updated = await toggleVideoPermanent(id);
@@ -363,7 +368,7 @@ app.patch('/api/admin/videos/:id/toggle-permanent', authenticateAdmin, async (re
 });
 
 // 4. Site Content Routes (Public & Admin)
-app.get('/api/site-content', async (_req: Request, res: Response) => {
+app.get(['/api/site-content', '/site-content'], async (_req: Request, res: Response) => {
   try {
     const content = await getSiteContent();
     res.json({ success: true, data: content });
@@ -372,7 +377,7 @@ app.get('/api/site-content', async (_req: Request, res: Response) => {
   }
 });
 
-app.get('/api/admin/site-content', authenticateAdmin, async (_req: Request, res: Response) => {
+app.get(['/api/admin/site-content', '/admin/site-content'], authenticateAdmin, async (_req: Request, res: Response) => {
   try {
     const content = await getSiteContent();
     res.json({ success: true, data: content });
@@ -381,7 +386,7 @@ app.get('/api/admin/site-content', authenticateAdmin, async (_req: Request, res:
   }
 });
 
-app.post('/api/admin/site-content', authenticateAdmin, async (req: Request, res: Response) => {
+app.post(['/api/admin/site-content', '/admin/site-content'], authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const content = req.body;
     if (!content || typeof content !== 'object') {
@@ -396,7 +401,7 @@ app.post('/api/admin/site-content', authenticateAdmin, async (req: Request, res:
 });
 
 // 5. Photos Routes (Public & Admin)
-app.get('/api/photos', async (_req: Request, res: Response) => {
+app.get(['/api/photos', '/photos'], async (_req: Request, res: Response) => {
   try {
     const photos = await getPhotos();
     res.json({ success: true, data: photos });
@@ -405,7 +410,7 @@ app.get('/api/photos', async (_req: Request, res: Response) => {
   }
 });
 
-app.get('/api/admin/photos', authenticateAdmin, async (_req: Request, res: Response) => {
+app.get(['/api/admin/photos', '/admin/photos'], authenticateAdmin, async (_req: Request, res: Response) => {
   try {
     const photos = await getPhotos();
     res.json({ success: true, data: photos });
@@ -414,7 +419,7 @@ app.get('/api/admin/photos', authenticateAdmin, async (_req: Request, res: Respo
   }
 });
 
-app.post('/api/admin/photos', authenticateAdmin, async (req: Request, res: Response) => {
+app.post(['/api/admin/photos', '/admin/photos'], authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const { url, title } = req.body;
     if (!url) {
@@ -428,7 +433,7 @@ app.post('/api/admin/photos', authenticateAdmin, async (req: Request, res: Respo
   }
 });
 
-app.delete('/api/admin/photos/:id', authenticateAdmin, async (req: Request, res: Response) => {
+app.delete(['/api/admin/photos/:id', '/admin/photos/:id'], authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const deleted = await deletePhoto(id);
@@ -443,16 +448,16 @@ app.delete('/api/admin/photos/:id', authenticateAdmin, async (req: Request, res:
 });
 
 // 6. Admin Stats Route
-app.get('/api/admin/stats', authenticateAdmin, async (_req: Request, res: Response) => {
+app.get(['/api/admin/stats', '/admin/stats'], authenticateAdmin, async (_req: Request, res: Response) => {
   try {
     const videos = await getVideos();
     const photos = await getPhotos();
     const stats = {
       totalVideos: videos.length,
-      publishedVideos: videos.filter((v) => v.isPublished).length,
-      hiddenVideos: videos.filter((v) => !v.isPublished).length,
-      featuredVideos: videos.filter((v) => v.isFeatured).length,
-      permanentVideos: videos.filter((v) => v.isPermanent).length,
+      publishedVideos: videos.filter((v) => v && v.isPublished).length,
+      hiddenVideos: videos.filter((v) => v && !v.isPublished).length,
+      featuredVideos: videos.filter((v) => v && v.isFeatured).length,
+      permanentVideos: videos.filter((v) => v && v.isPermanent).length,
       totalPhotos: photos.length,
     };
     res.json({ success: true, data: stats });
@@ -463,7 +468,7 @@ app.get('/api/admin/stats', authenticateAdmin, async (_req: Request, res: Respon
 
 // 7. File Upload Endpoint (Vercel Blob, Cloudinary, Database & Local Storage)
 app.post(
-  '/api/upload',
+  ['/api/upload', '/upload'],
   authenticateAdmin,
   upload.fields([
     { name: 'file', maxCount: 1 },
@@ -492,7 +497,7 @@ app.post(
 );
 
 // 8. Media Stream Endpoint for database-stored files
-app.get('/api/media/:id', async (req: Request, res: Response) => {
+app.get(['/api/media/:id', '/media/:id'], async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const pool = getPgPool();
