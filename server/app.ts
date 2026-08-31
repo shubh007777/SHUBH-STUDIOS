@@ -55,6 +55,14 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// Vercel Serverless Route Normalization middleware
+app.use((req: Request, _res: Response, next: NextFunction) => {
+  if (req.url && !req.url.startsWith('/api') && req.url !== '/' && !req.url.startsWith('/uploads')) {
+    req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
+  }
+  next();
+});
+
 // Serve static uploaded files locally
 const uploadsDir = path.join(process.cwd(), 'uploads');
 try {
@@ -108,7 +116,7 @@ app.get('/api/health', (_req: Request, res: Response) => {
 // 1. Auth Routes
 app.post('/api/auth/login', async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
 
     if (!email || !password) {
       res.status(400).json({ success: false, error: 'Email and password are required' });
@@ -116,15 +124,20 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     }
 
     const adminEmail = getAdminEmail();
-    if (email.trim().toLowerCase() !== adminEmail.toLowerCase()) {
+    if (String(email).trim().toLowerCase() !== adminEmail.toLowerCase()) {
       res.status(401).json({ success: false, error: 'Invalid admin credentials' });
       return;
     }
 
-    const fallbackHash = bcrypt.hashSync(getDefaultAdminPassword(), 10);
-    const currentHash = await getAdminPasswordHash(fallbackHash);
+    let currentHash = await getAdminPasswordHash('');
+    if (!currentHash) {
+      const hashFn = bcrypt.hashSync || (bcrypt as any).default?.hashSync;
+      currentHash = hashFn ? hashFn(getDefaultAdminPassword(), 10) : '';
+    }
 
-    const isPasswordValid = bcrypt.compareSync(password, currentHash);
+    const compareFn = bcrypt.compareSync || (bcrypt as any).default?.compareSync;
+    const isPasswordValid = compareFn ? compareFn(String(password), currentHash) : false;
+
     if (!isPasswordValid) {
       res.status(401).json({ success: false, error: 'Invalid admin credentials' });
       return;

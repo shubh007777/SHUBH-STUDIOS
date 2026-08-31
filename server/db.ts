@@ -364,6 +364,10 @@ export function getPgPool(): pg.Pool | null {
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 5000,
     });
+
+    pgPool.on('error', (err) => {
+      console.error('Unexpected error on idle PostgreSQL client:', err);
+    });
   }
 
   return pgPool;
