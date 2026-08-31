@@ -35,13 +35,15 @@ async function parseJsonResponse(res: Response, fallbackErrorMessage: string): P
     json = JSON.parse(text);
   } catch (_e) {
     if (!res.ok) {
-      if (res.status === 500) {
-        throw new Error('Server error (500). Please verify login credentials or try again.');
-      }
-      throw new Error(`Server returned HTTP ${res.status}: ${res.statusText || 'Error'}`);
+      throw new Error(`Server error (${res.status}): ${res.statusText || 'Execution failed'}`);
     }
     throw new Error(fallbackErrorMessage);
   }
+
+  if (!res.ok) {
+    throw new Error(json.error || json.message || fallbackErrorMessage);
+  }
+
   return json;
 }
 

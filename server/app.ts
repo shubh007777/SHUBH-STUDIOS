@@ -57,7 +57,10 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Vercel Serverless Route Normalization middleware
 app.use((req: Request, _res: Response, next: NextFunction) => {
-  if (req.url && !req.url.startsWith('/api') && req.url !== '/' && !req.url.startsWith('/uploads')) {
+  const original = req.headers['x-forwarded-uri'] || req.headers['x-matched-path'] || req.originalUrl || req.url;
+  if (typeof original === 'string' && original.startsWith('/api')) {
+    req.url = original.split('?')[0];
+  } else if (req.url && !req.url.startsWith('/api') && req.url !== '/' && !req.url.startsWith('/uploads')) {
     req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
   }
   next();
@@ -129,15 +132,11 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
       return;
     }
 
-    let currentHash = await getAdminPasswordHash('');
-    if (!currentHash) {
-      const hashFn = bcrypt.hashSync || (bcrypt as any).default?.hashSync;
-      currentHash = hashFn ? hashFn(getDefaultAdminPassword(), 10) : '';
-    }
+    const defaultPass = getDefaultAdminPassword();
+    const fallbackHash = bcrypt.hashSync(defaultPass, 10);
+    const currentHash = await getAdminPasswordHash(fallbackHash);
 
-    const compareFn = bcrypt.compareSync || (bcrypt as any).default?.compareSync;
-    const isPasswordValid = compareFn ? compareFn(String(password), currentHash) : false;
-
+    const isPasswordValid = bcrypt.compareSync(String(password), currentHash);
     if (!isPasswordValid) {
       res.status(401).json({ success: false, error: 'Invalid admin credentials' });
       return;
