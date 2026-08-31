@@ -57,10 +57,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Vercel Serverless Route Normalization middleware
 app.use((req: Request, _res: Response, next: NextFunction) => {
-  const original = req.headers['x-forwarded-uri'] || req.headers['x-matched-path'] || req.originalUrl || req.url;
-  if (typeof original === 'string' && original.startsWith('/api')) {
-    req.url = original.split('?')[0];
-  } else if (req.url && !req.url.startsWith('/api') && req.url !== '/' && !req.url.startsWith('/uploads')) {
+  if (req.url && !req.url.startsWith('/api') && !req.url.startsWith('/uploads')) {
     req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
   }
   next();
