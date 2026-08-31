@@ -1,0 +1,205 @@
+{
+  "hero": {
+    "statusBadge": "Available for Travel Brands & Reels Editing",
+    "subtitle": "TRAVEL VIDEO EDITOR & ADS CREATOR",
+    "heading": "SHUBH",
+    "description": "I turn travel footage into cinematic stories, engaging reels and high-converting promotional videos.",
+    "buttonWorkText": "VIEW MY WORK",
+    "buttonContactText": "LET'S WORK TOGETHER",
+    "stat1Value": "50M+",
+    "stat1Label": "Reels & Ads Views",
+    "stat2Value": "250+",
+    "stat2Label": "Cinematic Edits",
+    "stat3Value": "100%",
+    "stat3Label": "Client Satisfaction"
+  },
+  "selectedWork": {
+    "eyebrow": "PORTFOLIO SHOWCASE",
+    "heading": "SELECTED WORK",
+    "subtitle": "A curated collection of cinematic travel reels, brand advertisements, and promotional video edits."
+  },
+  "about": {
+    "eyebrow": "★ CINEMATIC STORYTELLER & ADS STRATEGIST",
+    "heading": "THE VISION BEHIND THE CUTS",
+    "bioParagraph1": "I am Shubh, a travel video editor and commercial ads creator specializing in turning raw footage into high-converting, visually breathtaking travel reels & campaigns.",
+    "bioParagraph2": "Whether editing fast-paced viral Instagram Reels, luxury resort promo videos, or high-ROAS social media video ads for travel brands & tourism boards, my edits are meticulously engineered with frame-accurate beat matching, multi-layered sound design, bespoke 4K color profiles, and psychological hook structures.",
+    "feature1Title": "Retention Hook Engineering",
+    "feature1Desc": "Capturing viewer focus in the first 1.5s with punchy cuts, audio risers, and sound SFX.",
+    "feature2Title": "4K HDR Color Grading",
+    "feature2Desc": "Custom cinematic color palettes (Moody Alpine, Tropical Glow, Teal & Orange) tailored to brands.",
+    "feature3Title": "Immersive Soundscapes",
+    "feature3Desc": "Atmospheric ambient audio, swooshes, risers, and beat-synced rhythm cuts for maximum impact.",
+    "feature4Title": "Commercial Video Ads",
+    "feature4Desc": "Converting ad edits for luxury resorts, travel agencies, and tour operators to boost bookings."
+  },
+  "travelCompanies": {
+    "eyebrow": "★ CLIENT COLLABORATIONS",
+    "heading": "TRAVEL COMPANIES I HAVE COLLABORATED WITH",
+    "subtitle": "Proudly editing high-converting commercial promo videos, destination reels & tour campaigns for global travel agencies, luxury resorts, and adventure tour operators.",
+    "items": [
+      {
+        "id": "company-1",
+        "name": "Alpine Treks & Expeditions",
+        "badge": "EXPEDITION & REELS",
+        "location": "Swiss Alps & Himalayas",
+        "description": "Edited 12 viral promo reels and cinematic trailers highlighting high-altitude summit tours with frame-accurate beat cuts.",
+        "imageUrl": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+        "companyUrl": "https://instagram.com"
+      },
+      {
+        "id": "company-2",
+        "name": "Tropical Horizon Resorts",
+        "badge": "LUXURY RESORT ADS",
+        "location": "Bali & Maldives",
+        "description": "Custom 4K color-graded commercial promotional videos for beachfront luxury villas, spa retreats, and sunset cruises.",
+        "imageUrl": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
+        "companyUrl": "https://instagram.com"
+      },
+      {
+        "id": "company-3",
+        "name": "Wanderlust Travel Co.",
+        "badge": "COMMERCIAL AD CAMPAIGN",
+        "location": "Global Tour Operators",
+        "description": "Crafted high-retention Facebook & Instagram video ads driving over 350+ direct group tour bookings with strong CTA hooks.",
+        "imageUrl": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80",
+        "companyUrl": "https://instagram.com"
+      },
+      {
+        "id": "company-4",
+        "name": "Coastal FPV Drone Safaris",
+        "badge": "AERIAL DYNAMIC EDITS",
+        "location": "Amalfi Coast, Italy",
+        "description": "Seamless FPV drone transition cuts, atmospheric sound design, and speed ramps for ocean excursion campaigns.",
+        "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+        "companyUrl": "https://instagram.com"
+      }
+    ]
+  },
+  "instagram": {
+    "eyebrow": "★ OFFICIAL INSTAGRAM HANDLES",
+    "heading": "MY INSTAGRAM ACCOUNTS — SEE MY WORK LIVE",
+    "subtitle": "Follow my latest daily cuts, reel breakdowns, and client ad campaigns directly on Instagram.",
+    "qualityNotice": "Note: Followers are currently growing, but video quality, retention rates & viral reach are exceptionally high!",
+    "account1": {
+      "name": "Shubh | Travel Video Editor",
+      "handle": "@shubh.travels",
+      "bio": "Main Instagram channel dedicated to cinematic travel edits, high-energy beat sync reels, atmospheric sound design breakdowns, and 4K color grading samples.",
+      "link": "https://instagram.com",
+      "badge": "★ 1.2M+ Reach"
+    },
+    "account2": {
+      "name": "Shubh Ads | Resort Promos",
+      "handle": "@shubh.ads",
+      "bio": "Dedicated commercial Instagram page featuring high-converting social media video ads for luxury resorts, travel agencies, tour operators & lifestyle brands.",
+      "link": "https://instagram.com",
+      "badge": "★ High ROAS Ads"
+    }
+  },
+  "services": {
+    "eyebrow": "EXPERT CAPABILITIES",
+    "heading": "CRAFTED FOR IMPACT",
+    "subtitle": "Tailored video editing services designed to transform raw travel footage into magnetic visual experiences.",
+    "items": [
+      {
+        "id": "travel-reels",
+        "title": "TRAVEL REELS",
+        "subtitle": "Viral Short-Form Content",
+        "description": "Cinematic and engaging Instagram reels and TikToks tailored specifically for travel pages, digital nomads, and creators.",
+        "tags": [
+          "Instagram Reels",
+          "TikTok",
+          "YouTube Shorts",
+          "Dynamic Transitions"
+        ]
+      },
+      {
+        "id": "travel-ads",
+        "title": "TRAVEL ADS",
+        "subtitle": "High-Converting Campaigns",
+        "description": "Promotional advertisements designed for travel agencies, luxury hotels, eco-resorts, and tourism boards to maximize booking conversions.",
+        "tags": [
+          "Facebook & IG Ads",
+          "Resort Promos",
+          "Tour Operator Ads",
+          "CTA Strategy"
+        ]
+      },
+      {
+        "id": "cinematic-editing",
+        "title": "CINEMATIC EDITING",
+        "subtitle": "Bespoke Film & Storytelling",
+        "description": "Professional storytelling, frame pacing, seamless match-cuts, immersive sound design, ambient audio mixing and custom color grading.",
+        "tags": [
+          "4K/8K Editing",
+          "Color Grading",
+          "SFX & Soundscapes",
+          "Speed Ramping"
+        ]
+      },
+      {
+        "id": "social-media-content",
+        "title": "SOCIAL MEDIA CONTENT",
+        "subtitle": "Platform Optimization",
+        "description": "Short-form video content engineered and re-formatted specifically across platforms for maximum reach, watch time and retention.",
+        "tags": [
+          "Multi-Format Export",
+          "Engaging Captions",
+          "Hook Testing",
+          "Content Batching"
+        ]
+      }
+    ]
+  },
+  "reviews": {
+    "eyebrow": "★ CLIENT TESTIMONIALS & FEEDBACK",
+    "heading": "WHAT MY TRAVEL CLIENTS SAY",
+    "subtitle": "Real reviews, video project screenshots & ratings from travel brands, luxury resorts, and creators I edit for.",
+    "items": [
+      {
+        "id": "review-1",
+        "clientName": "Markus Vance",
+        "clientTitle": "Expedition Director, Alpine Treks",
+        "clientPicUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+        "rating": 5,
+        "reviewText": "Shubh turned our raw GoPro and drone footage into viral Instagram Reels that generated over 40+ direct tour inquiries in just 2 weeks. His beat matching and color grading are top tier!",
+        "projectBadge": "EXPEDITION REELS",
+        "videoUrl": "https://instagram.com"
+      },
+      {
+        "id": "review-2",
+        "clientName": "Sophia Lin",
+        "clientTitle": "Marketing Director, Tropical Horizon Bali",
+        "clientPicUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80",
+        "rating": 5,
+        "reviewText": "The promotional ad campaign video Shubh edited for our luxury resort villas delivered our highest ROAS ever on Meta Ads. The sound design made the video feel like a high-end luxury movie trailer.",
+        "projectBadge": "COMMERCIAL AD",
+        "videoUrl": "https://instagram.com"
+      },
+      {
+        "id": "review-3",
+        "clientName": "Rohan & Priya",
+        "clientTitle": "Travel Creators (500K+ Reach)",
+        "clientPicUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80",
+        "rating": 5,
+        "reviewText": "Finding an editor who understands frame pacing, hook retention, and aesthetic color grading is so rare. Shubh consistently delivers 4K reels that hit 100K+ views within hours!",
+        "projectBadge": "VIRAL REELS",
+        "videoUrl": "https://instagram.com"
+      }
+    ]
+  },
+  "contact": {
+    "eyebrow": "START A PROJECT",
+    "heading": "LET'S CREATE SOMETHING PEOPLE WANT TO WATCH.",
+    "subtitle": "Have travel footage that deserves a better story?",
+    "email": "kumarshubh8750@gmail.com",
+    "phone": "+91 8178306611",
+    "whatsapp": "8178306611",
+    "whatsappMessage": "Hi Shubh, I saw your portfolio and want to discuss a travel video editing project!",
+    "formspreeUrl": "https://formspree.io/f/xnparlyz",
+    "instagram1Handle": "@wonderwithshuuu",
+    "instagram1Url": "https://instagram.com/wonderwithshuuu",
+    "instagram2Handle": "@roamwithakshay",
+    "instagram2Url": "https://instagram.com/roamwithakshay",
+    "responseTimeText": "Typical response time: Within 15–30 mins on WhatsApp"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Shubh | Travel Video Editor & Ads Creator",
+  "description": "Cinematic portfolio and admin video management platform for travel video editor and ads creator Shubh.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
