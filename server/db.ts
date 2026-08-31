@@ -1,13 +1,20 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import pg from 'pg';
 import { VideoItem, PhotoItem, SiteContent } from '../src/types';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
+const TMP_DIR = os.tmpdir();
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 const PHOTOS_FILE = path.join(DATA_DIR, 'photos.json');
 const SITE_CONTENT_FILE = path.join(DATA_DIR, 'siteContent.json');
 const ADMIN_FILE = path.join(DATA_DIR, 'admin.json');
+
+const TMP_DB_FILE = path.join(TMP_DIR, 'db.json');
+const TMP_PHOTOS_FILE = path.join(TMP_DIR, 'photos.json');
+const TMP_SITE_CONTENT_FILE = path.join(TMP_DIR, 'siteContent.json');
+const TMP_ADMIN_FILE = path.join(TMP_DIR, 'admin.json');
 
 export const INITIAL_SITE_CONTENT: SiteContent = {
   hero: {
@@ -735,6 +742,17 @@ export async function getAdminPasswordHash(fallbackHash: string): Promise<string
   }
 
   try {
+    if (fs.existsSync(TMP_ADMIN_FILE)) {
+      const raw = fs.readFileSync(TMP_ADMIN_FILE, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (parsed.hash) {
+        memoryStore.adminPasswordHash = parsed.hash;
+        return parsed.hash;
+      }
+    }
+  } catch (_) {}
+
+  try {
     if (fs.existsSync(ADMIN_FILE)) {
       const raw = fs.readFileSync(ADMIN_FILE, 'utf-8');
       const parsed = JSON.parse(raw);
@@ -765,6 +783,10 @@ export async function saveAdminPasswordHash(hash: string): Promise<void> {
       console.error('Postgres error saving admin_password_hash:', err);
     }
   }
+
+  try {
+    fs.writeFileSync(TMP_ADMIN_FILE, JSON.stringify({ hash }, null, 2), 'utf-8');
+  } catch (_) {}
 
   try {
     ensureDataDir();

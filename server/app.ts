@@ -521,8 +521,17 @@ app.get('/api/media/:id', async (req: Request, res: Response) => {
 });
 
 // Fallback for unmatched API routes
-app.all('/api/*', (_req: Request, res: Response) => {
+app.all('/api*', (_req: Request, res: Response) => {
   res.status(404).json({ success: false, error: 'API endpoint not found' });
+});
+
+// Global Express Error Handler for uncaught route errors
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('Global Server Error caught:', err);
+  res.status(err.status || 500).json({
+    success: false,
+    error: err.message || 'Internal Server Error',
+  });
 });
 
 export default app;
