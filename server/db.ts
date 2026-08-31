@@ -423,53 +423,56 @@ export function ensureDataDir(): void {
 
 // ================= Site Content =================
 export async function getSiteContent(): Promise<SiteContent> {
-  const pool = getPgPool();
-  if (pool) {
-    try {
-      await initPostgresTables(pool);
-      const res = await pool.query('SELECT value FROM portfolio_store WHERE key = $1', ['site_content']);
-      if (res.rows.length > 0 && res.rows[0].value) {
-        memoryStore.siteContent = {
-          ...INITIAL_SITE_CONTENT,
-          ...res.rows[0].value,
-        };
-        return memoryStore.siteContent!;
-      }
-      // Seed initial content to Postgres
-      await pool.query(
-        'INSERT INTO portfolio_store (key, value) VALUES ($1, $2) ON CONFLICT (key) DO NOTHING',
-        ['site_content', JSON.stringify(INITIAL_SITE_CONTENT)]
-      );
-      memoryStore.siteContent = INITIAL_SITE_CONTENT;
-      return INITIAL_SITE_CONTENT;
-    } catch (err) {
-      console.error('Postgres error in getSiteContent:', err);
-    }
-  }
-
-  // Memory cache check
-  if (memoryStore.siteContent) {
-    return memoryStore.siteContent;
-  }
-
-  // File system fallback
-  ensureDataDir();
   try {
-    if (fs.existsSync(SITE_CONTENT_FILE)) {
-      const raw = fs.readFileSync(SITE_CONTENT_FILE, 'utf-8');
-      const parsed = JSON.parse(raw);
-      memoryStore.siteContent = {
-        ...INITIAL_SITE_CONTENT,
-        ...parsed,
-      };
+    const pool = getPgPool();
+    if (pool) {
+      try {
+        await initPostgresTables(pool);
+        const res = await pool.query('SELECT value FROM portfolio_store WHERE key = $1', ['site_content']);
+        if (res.rows.length > 0 && res.rows[0].value) {
+          memoryStore.siteContent = {
+            ...INITIAL_SITE_CONTENT,
+            ...res.rows[0].value,
+          };
+          return memoryStore.siteContent!;
+        }
+        await pool.query(
+          'INSERT INTO portfolio_store (key, value) VALUES ($1, $2) ON CONFLICT (key) DO NOTHING',
+          ['site_content', JSON.stringify(INITIAL_SITE_CONTENT)]
+        );
+        memoryStore.siteContent = INITIAL_SITE_CONTENT;
+        return INITIAL_SITE_CONTENT;
+      } catch (err) {
+        console.error('Postgres error in getSiteContent:', err);
+      }
+    }
+
+    if (memoryStore.siteContent) {
       return memoryStore.siteContent;
     }
-  } catch (err) {
-    console.warn('Filesystem read error for siteContent, using initial:', err);
-  }
 
-  memoryStore.siteContent = INITIAL_SITE_CONTENT;
-  return INITIAL_SITE_CONTENT;
+    try {
+      if (fs.existsSync(TMP_SITE_CONTENT_FILE)) {
+        const raw = fs.readFileSync(TMP_SITE_CONTENT_FILE, 'utf-8');
+        memoryStore.siteContent = { ...INITIAL_SITE_CONTENT, ...JSON.parse(raw) };
+        return memoryStore.siteContent;
+      }
+    } catch (_) {}
+
+    try {
+      if (fs.existsSync(SITE_CONTENT_FILE)) {
+        const raw = fs.readFileSync(SITE_CONTENT_FILE, 'utf-8');
+        memoryStore.siteContent = { ...INITIAL_SITE_CONTENT, ...JSON.parse(raw) };
+        return memoryStore.siteContent;
+      }
+    } catch (_) {}
+
+    memoryStore.siteContent = INITIAL_SITE_CONTENT;
+    return INITIAL_SITE_CONTENT;
+  } catch (err) {
+    console.error('Fallback crash prevented in getSiteContent:', err);
+    return INITIAL_SITE_CONTENT;
+  }
 }
 
 export async function saveSiteContent(content: SiteContent): Promise<void> {
@@ -490,53 +493,64 @@ export async function saveSiteContent(content: SiteContent): Promise<void> {
   }
 
   try {
+    fs.writeFileSync(TMP_SITE_CONTENT_FILE, JSON.stringify(content, null, 2), 'utf-8');
+  } catch (_) {}
+
+  try {
     ensureDataDir();
     fs.writeFileSync(SITE_CONTENT_FILE, JSON.stringify(content, null, 2), 'utf-8');
-  } catch (err) {
-    console.warn('Filesystem write error (ignorable on serverless):', err);
-  }
+  } catch (_) {}
 }
 
 // ================= Photos =================
 export async function getPhotos(): Promise<PhotoItem[]> {
-  const pool = getPgPool();
-  if (pool) {
-    try {
-      await initPostgresTables(pool);
-      const res = await pool.query('SELECT value FROM portfolio_store WHERE key = $1', ['photos']);
-      if (res.rows.length > 0 && Array.isArray(res.rows[0].value)) {
-        memoryStore.photos = res.rows[0].value;
-        return memoryStore.photos!;
-      }
-      // Seed initial photos
-      await pool.query(
-        'INSERT INTO portfolio_store (key, value) VALUES ($1, $2) ON CONFLICT (key) DO NOTHING',
-        ['photos', JSON.stringify(INITIAL_PHOTOS)]
-      );
-      memoryStore.photos = INITIAL_PHOTOS;
-      return INITIAL_PHOTOS;
-    } catch (err) {
-      console.error('Postgres error in getPhotos:', err);
-    }
-  }
-
-  if (memoryStore.photos) {
-    return memoryStore.photos;
-  }
-
-  ensureDataDir();
   try {
-    if (fs.existsSync(PHOTOS_FILE)) {
-      const raw = fs.readFileSync(PHOTOS_FILE, 'utf-8');
-      memoryStore.photos = JSON.parse(raw) as PhotoItem[];
+    const pool = getPgPool();
+    if (pool) {
+      try {
+        await initPostgresTables(pool);
+        const res = await pool.query('SELECT value FROM portfolio_store WHERE key = $1', ['photos']);
+        if (res.rows.length > 0 && Array.isArray(res.rows[0].value)) {
+          memoryStore.photos = res.rows[0].value;
+          return memoryStore.photos!;
+        }
+        await pool.query(
+          'INSERT INTO portfolio_store (key, value) VALUES ($1, $2) ON CONFLICT (key) DO NOTHING',
+          ['photos', JSON.stringify(INITIAL_PHOTOS)]
+        );
+        memoryStore.photos = INITIAL_PHOTOS;
+        return INITIAL_PHOTOS;
+      } catch (err) {
+        console.error('Postgres error in getPhotos:', err);
+      }
+    }
+
+    if (memoryStore.photos) {
       return memoryStore.photos;
     }
-  } catch (err) {
-    console.warn('Filesystem read error for photos:', err);
-  }
 
-  memoryStore.photos = INITIAL_PHOTOS;
-  return INITIAL_PHOTOS;
+    try {
+      if (fs.existsSync(TMP_PHOTOS_FILE)) {
+        const raw = fs.readFileSync(TMP_PHOTOS_FILE, 'utf-8');
+        memoryStore.photos = JSON.parse(raw) as PhotoItem[];
+        return memoryStore.photos;
+      }
+    } catch (_) {}
+
+    try {
+      if (fs.existsSync(PHOTOS_FILE)) {
+        const raw = fs.readFileSync(PHOTOS_FILE, 'utf-8');
+        memoryStore.photos = JSON.parse(raw) as PhotoItem[];
+        return memoryStore.photos;
+      }
+    } catch (_) {}
+
+    memoryStore.photos = INITIAL_PHOTOS;
+    return INITIAL_PHOTOS;
+  } catch (err) {
+    console.error('Fallback crash prevented in getPhotos:', err);
+    return INITIAL_PHOTOS;
+  }
 }
 
 export async function savePhotos(photos: PhotoItem[]): Promise<void> {
@@ -557,11 +571,13 @@ export async function savePhotos(photos: PhotoItem[]): Promise<void> {
   }
 
   try {
+    fs.writeFileSync(TMP_PHOTOS_FILE, JSON.stringify(photos, null, 2), 'utf-8');
+  } catch (_) {}
+
+  try {
     ensureDataDir();
     fs.writeFileSync(PHOTOS_FILE, JSON.stringify(photos, null, 2), 'utf-8');
-  } catch (err) {
-    console.warn('Filesystem write error (ignorable on serverless):', err);
-  }
+  } catch (_) {}
 }
 
 export async function addPhoto(url: string, title?: string): Promise<PhotoItem> {
@@ -587,57 +603,67 @@ export async function deletePhoto(id: string): Promise<boolean> {
 
 // ================= Videos =================
 export function sortVideos(videos: VideoItem[]): VideoItem[] {
+  if (!Array.isArray(videos)) return [];
   return [...videos].sort((a, b) => {
-    const aPerm = a.isPermanent ? 1 : 0;
-    const bPerm = b.isPermanent ? 1 : 0;
+    const aPerm = a && a.isPermanent ? 1 : 0;
+    const bPerm = b && b.isPermanent ? 1 : 0;
     if (aPerm !== bPerm) return bPerm - aPerm;
 
-    const aTime = new Date(a.createdAt || 0).getTime();
-    const bTime = new Date(b.createdAt || 0).getTime();
+    const aTime = new Date((a && a.createdAt) || 0).getTime();
+    const bTime = new Date((b && b.createdAt) || 0).getTime();
     return bTime - aTime;
   });
 }
 
 export async function getVideos(): Promise<VideoItem[]> {
-  const pool = getPgPool();
-  if (pool) {
+  try {
+    const pool = getPgPool();
+    if (pool) {
+      try {
+        await initPostgresTables(pool);
+        const res = await pool.query('SELECT value FROM portfolio_store WHERE key = $1', ['videos']);
+        if (res.rows.length > 0 && Array.isArray(res.rows[0].value)) {
+          memoryStore.videos = sortVideos(res.rows[0].value);
+          return memoryStore.videos;
+        }
+        await pool.query(
+          'INSERT INTO portfolio_store (key, value) VALUES ($1, $2) ON CONFLICT (key) DO NOTHING',
+          ['videos', JSON.stringify(INITIAL_VIDEOS)]
+        );
+        memoryStore.videos = sortVideos(INITIAL_VIDEOS);
+        return memoryStore.videos;
+      } catch (err) {
+        console.error('Postgres error in getVideos:', err);
+      }
+    }
+
+    if (memoryStore.videos) {
+      return memoryStore.videos;
+    }
+
     try {
-      await initPostgresTables(pool);
-      const res = await pool.query('SELECT value FROM portfolio_store WHERE key = $1', ['videos']);
-      if (res.rows.length > 0 && Array.isArray(res.rows[0].value)) {
-        memoryStore.videos = sortVideos(res.rows[0].value);
+      if (fs.existsSync(TMP_DB_FILE)) {
+        const raw = fs.readFileSync(TMP_DB_FILE, 'utf-8');
+        memoryStore.videos = sortVideos(JSON.parse(raw));
         return memoryStore.videos;
       }
-      // Seed initial videos
-      await pool.query(
-        'INSERT INTO portfolio_store (key, value) VALUES ($1, $2) ON CONFLICT (key) DO NOTHING',
-        ['videos', JSON.stringify(INITIAL_VIDEOS)]
-      );
-      memoryStore.videos = sortVideos(INITIAL_VIDEOS);
-      return memoryStore.videos;
-    } catch (err) {
-      console.error('Postgres error in getVideos:', err);
-    }
-  }
+    } catch (_) {}
 
-  if (memoryStore.videos) {
+    try {
+      if (fs.existsSync(DB_FILE)) {
+        const raw = fs.readFileSync(DB_FILE, 'utf-8');
+        memoryStore.videos = sortVideos(JSON.parse(raw));
+        return memoryStore.videos;
+      }
+    } catch (_) {}
+
+    memoryStore.videos = sortVideos(INITIAL_VIDEOS);
     return memoryStore.videos;
-  }
-
-  ensureDataDir();
-  try {
-    if (fs.existsSync(DB_FILE)) {
-      const raw = fs.readFileSync(DB_FILE, 'utf-8');
-      const parsed = JSON.parse(raw) as VideoItem[];
-      memoryStore.videos = sortVideos(parsed);
-      return memoryStore.videos;
-    }
   } catch (err) {
-    console.warn('Filesystem read error for videos:', err);
+    console.error('Fallback crash prevented in getVideos:', err);
+    return sortVideos(INITIAL_VIDEOS);
   }
-
-  memoryStore.videos = sortVideos(INITIAL_VIDEOS);
-  return memoryStore.videos;
+}
 }
 
 export async function saveVideos(videos: VideoItem[]): Promise<void> {
